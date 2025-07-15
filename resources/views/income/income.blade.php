@@ -15,7 +15,7 @@
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <div>
                     <p class="text-body fs-4 m-0">{{ __('asset.total_subscription_bonus') }}</p>
-                    <h3 class="text-primary fs-6 mb-1">{{ $data['bonus'] }}</h3>
+                    <h3 class="text-primary fs-6 mb-1">{{ $data['subscription_bonus'] }}</h3>
                 </div>
             </div>
             <div class="d-flex justify-content-between align-items-center mb-4">
@@ -23,6 +23,12 @@
                     <p class="text-body fs-4 m-0">{{ __('staking.total_staking_profit') }}</p>
                     <h3 class="text-primary fs-6 mb-1">{{ $data['reward'] }}</h3>
                 </div>
+            </div>
+            <div class="mb-4">
+                <div class="d-flex justify-content-between align-items-start">
+                    <p class="text-body fs-4 m-0">{{ __('asset.total_referral_bonus') }}</p>
+                </div>
+                <h3 class="text-primary fs-6 mb-1">{{ $data['referral_bonus'] }}</h3>
             </div>
             <div class="mb-4">
                 <div class="d-flex justify-content-between align-items-start">
@@ -43,7 +49,7 @@
                     <p class="text-body fs-4 m-0">{{ __('asset.current_balance') }}</p>
                     <h3 class="text-primary fs-6 mb-1">{{ $data['balance'] }}</h3>
                 </div>
-            </div>         
+            </div>
         </div>
     </div>
     @if($list->isNotEmpty())
@@ -58,24 +64,34 @@
                     <th>{{ __('system.category') }}</th>
                 </tr>
             </thead>
-            <tbody id="loadMoreContainer">              
+            <tbody id="loadMoreContainer">
                 @foreach($list as $key => $val)
                 <tr>
                     <td>{{ date_format($val->created_at, 'Y-m-d') }}</td>
                     <td>{{ $val->amount }}</td>
-                    <td>  
+                    <td>
                         @if ($val->profit)
                             {{ $val->profit->trading->profit_rate }}%
                         @elseif ($val->reward)
                             {{ $val->reward->staking->policy->daily }}%
+                        @else
+                            {{ '' }}
                         @endif
                     </td>
-                    <td>{{ $val->bonus? 'C' . $val->bonus->referrer_id : '' }}</td>
+                    <td>
+                        @if ($val->type === 'subscription_bonus')
+                            {{ $val->subscriptionBonus ? 'C' . $val->subscriptionBonus->referrer_id : '' }}
+                        @elseif ($val->type === 'referral_bonus')
+                            {{ $val->referralBonus ? 'C' . $val->referralBonus->referrer_id : '' }}
+                        @else
+                            {{ '' }}
+                        @endif
+                    </td>
                     <td>{{ $val->type_text }}</td>
                 </tr>
                 @endforeach
             </tbody>
-        </table> 
+        </table>
         @if($has_more)
         <a href="{{ route('income.list',['id' => $data['encrypted_id']]) }}" class="btn btn-outline-primary w-100 py-2 my-4 fs-4">{{ __('system.load_more') }}</a>
         @endif

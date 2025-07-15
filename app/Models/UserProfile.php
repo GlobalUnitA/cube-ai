@@ -29,11 +29,11 @@ class UserProfile extends Model
     ];
 
     protected $appends = [
-        'referral_count', 
+        'referral_count',
         'total_bonus',
         'is_referral',
     ];
-    
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
@@ -78,7 +78,7 @@ class UserProfile extends Model
         if ($max_amount_in_usdt >= $min_valid) {
             $is_valid = 'y';
         }
-        
+
         return $is_valid;
     }
 
@@ -128,7 +128,7 @@ class UserProfile extends Model
     {
         $parents = $this->getParentTree(21);
 
-       
+
         foreach ($parents as $level => $parent_profile) {
 
             if ($parent_profile->is_valid === 'n') {
@@ -138,7 +138,7 @@ class UserProfile extends Model
             $policy = subscriptionPolicy::where('grade_id', $parent_profile->grade->id)->first();
 
             $rate_key = "level_{$level}_rate";
-            
+
             $bonus = $withdrawal->fee * $policy->$rate_key / 100;
 
             if ($bonus <= 0) {
@@ -146,7 +146,7 @@ class UserProfile extends Model
             }
 
             $income = Income::where('user_id', $parent_profile->user_id)->where('coin_id', $withdrawal->income->coin_id)->first();
-            
+
             $transfer = IncomeTransfer::create([
                 'user_id'   => $parent_profile->user_id,
                 'income_id'  => $income->id,
@@ -157,7 +157,7 @@ class UserProfile extends Model
                 'before_balance' => $income->balance,
                 'after_balance' => $income->balance + $bonus,
             ]);
-            
+
             SubscriptionBonus::create([
                 'user_id'   => $parent_profile->user_id,
                 'referrer_id'   => $this->user_id,
@@ -165,12 +165,59 @@ class UserProfile extends Model
                 'withdrawal_id' => $withdrawal->id,
                 'bonus' => $bonus,
             ]);
-            
+
             $income->increment('balance', $bonus);
-            
-            Log::channel('bonus')->info('Success bonus', ['user_id' => $this->user_id, 'bonus' => $bonus]);
+
+            Log::channel('bonus')->info('Success subscription bonus', ['user_id' => $this->user_id, 'bonus' => $bonus, 'transfer_id' => $transfer->id]);
         }
 
+    }
+
+    public function referralBonus($staking)
+    {
+        $parents = $this->getParentTree(21);
+
+        foreach ($parents as $level => $parent_profile) {
+
+            if ($parent_profile->is_valid === 'n') {
+                continue;
+            }
+
+            $policy = ReferralPolicy::where('grade_id', $parent_profile->grade->id)->first();
+
+            $rate_key = "level_{$level}_rate";
+
+            $bonus = $staking->amount * $policy->$rate_key / 100;
+
+            if ($bonus <= 0) {
+                continue;
+            }
+
+            $income = Income::where('user_id', $parent_profile->user_id)->where('coin_id', $staking->income->coin_id)->first();
+
+            $transfer = IncomeTransfer::create([
+                'user_id'   => $parent_profile->user_id,
+                'income_id'  => $income->id,
+                'type' => 'referral_bonus',
+                'status' => 'completed',
+                'amount'    => $bonus,
+                'actual_amount' => $bonus,
+                'before_balance' => $income->balance,
+                'after_balance' => $income->balance + $bonus,
+            ]);
+
+            ReferralBonus::create([
+                'user_id'   => $parent_profile->user_id,
+                'referrer_id' => $this->user_id,
+                'staking_id'   => $staking->id,
+                'transfer_id'  => $transfer->id,
+                'bonus' => $bonus,
+            ]);
+
+            $income->increment('balance', $bonus);
+
+            Log::channel('bonus')->info('Success referral bonus', ['user_id' => $this->user_id, 'bonus' => $bonus, 'transfer_id' => $transfer->id]);
+        }
     }
 
     public function checkUserValidity()
@@ -178,7 +225,7 @@ class UserProfile extends Model
         if ($this->is_valid === 'y') return;
 
         $asset_policy = AssetPolicy::first();
-        
+
         $max_amount_in_usdt = AssetTransfer::where('user_id', $this->user_id)
             ->whereIn('type', ['deposit', 'internal', 'manual_deposit'])
             ->where('status', 'completed')
@@ -200,7 +247,7 @@ class UserProfile extends Model
         $parent_tree = $this->getParentTree(21);
 
         foreach ($parent_tree as $parent_profile) {
-            if ($parent_profile) {   
+            if ($parent_profile) {
                 $parent_profile->evaluateUserGrade();
             }
         }
@@ -220,7 +267,7 @@ class UserProfile extends Model
         foreach ($children_tree as $profiles) {
             foreach ($profiles as $child_profile) {
                 if ($child_profile->user) {
-                     
+
                     $group_sales += AssetTransfer::where('user_id', $child_profile->user_id)
                     ->whereIn('type', ['deposit', 'internal', 'manual_deposit'])
                     ->where('status', 'completed')
@@ -235,15 +282,15 @@ class UserProfile extends Model
 
     private function checkLevelUp($current_level, $self_sales, $group_sales)
     {
-    
+
         $next_level = $current_level + 1;
         $next_grade = UserGrade::where('level', $next_level)->first();
         $next_policy = GradePolicy::where('grade_id', $next_grade->id)->first();
 
         if (!$next_policy) {
-            return; 
+            return;
         }
-    
+
         if (
             $self_sales >= $next_policy->base_sales &&
             (
@@ -254,18 +301,18 @@ class UserProfile extends Model
             $result = UserProfile::where('id', $this->id)->update([
                 'grade_id' => $next_grade->id
             ]);
-    
+
             if (!$result) {
                 throw new \Exception("Failed to update grade_id for user_id {$this->user_id}");
             }
-    
+
             Log::channel('user')->info("User ID {$this->user_id} level up: {$current_level} → {$next_level}, self_sales : {$self_sales}, group_sales : {$group_sales}");
-    
+
             $this->checkLevelUp($next_level, $self_sales, $group_sales);
         }
 
         return;
     }
 
- 
+
 }

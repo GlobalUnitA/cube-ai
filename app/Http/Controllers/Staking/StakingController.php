@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Staking;
 
+use App\Models\User;
 use App\Models\Asset;
 use App\Models\Income;
 use App\Models\Staking;
@@ -17,7 +18,7 @@ class StakingController extends Controller
 {
     public function __construct()
     {
-        
+
     }
 
     public function index()
@@ -27,7 +28,7 @@ class StakingController extends Controller
             $query->where('is_active', 'y');
         })
         ->get();
-        
+
         return view('staking.staking', compact('assets'));
     }
 
@@ -45,7 +46,7 @@ class StakingController extends Controller
 
         return view('staking.profit', compact('staking', 'profits'));
     }
-    
+
     public function confirm($id)
     {
         $staking = StakingPolicy::find($id);
@@ -60,7 +61,7 @@ class StakingController extends Controller
         return view('staking.confirm', compact('staking', 'date', 'balance'));
     }
 
-    
+
     public function data(Request $request)
     {
         $staking = StakingPolicy::where('coin_id', $request->coin)->get();
@@ -70,8 +71,8 @@ class StakingController extends Controller
     public function store(Request $request)
     {
         $startDate = Carbon::now()->subDays(30);
-        $endDate = Carbon::now(); 
-        
+        $endDate = Carbon::now();
+
         $staking = StakingPolicy::find($request->staking);
 
         $min = $staking->min_quantity;
@@ -95,10 +96,10 @@ class StakingController extends Controller
             if ($asset->balance < $request->amount) {
                 throw new \Exception(__('asset.lack_balance_notice'));
             }
-    
+
             $date = $this->getStakingDate($staking->period);
 
-            Staking::create([
+            $staking = Staking::create([
                 'user_id' => auth()->id(),
                 'asset_id' => $asset->id,
                 'income_id' => $income->id,
@@ -113,14 +114,16 @@ class StakingController extends Controller
                 'balance' => $asset->balance - $request->amount
             ]);
 
+            $income->user->profile->referralBonus($staking);
+
             DB::commit();
-        
+
             return response()->json([
                 'status' => 'success',
                 'message' => __('staking.staking_success_notice'),
                 'url' => route('home'),
             ]);
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -128,9 +131,9 @@ class StakingController extends Controller
                 'status' => 'error',
                 'message' =>  $e->getMessage(),
             ]);
-        
+
         }
-        
+
     }
 
     private function getStakingDate($period)
@@ -141,5 +144,5 @@ class StakingController extends Controller
             'end' => $start->copy()->addDays($period-1),
         ];
     }
-    
-}   
+
+}

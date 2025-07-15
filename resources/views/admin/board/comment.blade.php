@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-title">게시글</h5>    
+                    <h5 class="card-title">게시글</h5>
                     <a href="{{ route('admin.post.list', ['code' => $board->board_code ]) }}" class="btn btn-secondary">목록</a>
                 </div>
                 <hr>
@@ -46,24 +46,24 @@
                     </tbody>
                 </table>
             </div>
-        </div>  
+        </div>
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-title">답글</h5>    
+                    <h5 class="card-title">답글</h5>
                 </div>
                 @if(!$comments->isEmpty())
                 <hr>
                 <div class="list-group">
                     @foreach($comments as $comment)
                     <div class="list-group-item">
-                        <i class="ti ti-corner-down-right"></i>    
+                        <i class="ti ti-corner-down-right"></i>
                         <strong>{{ $comment->user ? $comment->user->name : $comment->admin->name }}</strong>
                         @if($comment->admin)
                             <span class="badge bg-danger">관리자</span>
                         @endif
                         <div id="comment_{{ $comment->id }}" class="mt-2 ms-4">
-                            <p class="comment-content">{!! $comment->content !!}</p>
+                            <p class="comment-content">{!! nl2br(e($comment->content)) !!}</p>
                             <textarea class="form-control comment-edit d-none">{!! $comment->content !!}</textarea>
                             <small class="comment-date">{{ $comment->created_at->format('Y-m-d h:i:s') }}</small>
                             @if($comment->admin && $comment->admin->id === Auth::guard('admin')->id())
@@ -88,7 +88,7 @@
                     <hr>
                 </form>
             </div>
-        </div>        
+        </div>
     </div>
 </div>
 

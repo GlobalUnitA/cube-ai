@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-title">게시글</h5>    
+                    <h5 class="card-title">게시글</h5>
                 </div>
                 <hr>
                 <table class="table table-bordered mt-5 mb-5">
@@ -56,19 +56,19 @@
                 <hr>
                 @if(!$comments->isEmpty())
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-title">답글</h5>    
+                    <h5 class="card-title">답글</h5>
                 </div>
                 <hr>
                 <div class="list-group">
                     @foreach($comments as $comment)
                     <div class="list-group-item">
-                        <i class="ti ti-corner-down-right"></i>    
+                        <i class="ti ti-corner-down-right"></i>
                         <strong>{{ $comment->user ? $comment->user->name : $comment->admin->name }}</strong>
                         @if($comment->admin)
                             <span class="badge bg-danger">관리자</span>
                         @endif
                         <div class="ms-4">
-                            <p>{!! $comment->content !!}</p>
+                            <p>{!! nl2br(e($comment->content)) !!}</p>
                             <small>{{ $comment->created_at->format('Y-m-d h:i:s') }}</small>
                         </div>
                     </div>
@@ -80,7 +80,7 @@
                     <div class="d-flex">
                         <a href="{{ route('admin.post.list', ['code' => $board->board_code ]) }}" class="btn btn-secondary">목록</a>
                         @if($board->is_comment == 'y')
-                            <a href="{{ route('admin.post.view', ['code' => $board->board_code, 'mode' => 'comment', 'id' => $view->id ]) }}" class="btn btn-info ms-2">답글 달기</a> 
+                            <a href="{{ route('admin.post.view', ['code' => $board->board_code, 'mode' => 'comment', 'id' => $view->id ]) }}" class="btn btn-info ms-2">답글 달기</a>
                         @endif
                     </div>
                     <a href="{{ route('admin.post.view', ['code' => $board->board_code, 'mode' => 'modify', 'id' => $view->id ]) }}" class="btn btn-danger">게시글 수정</a>

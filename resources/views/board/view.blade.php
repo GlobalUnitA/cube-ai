@@ -18,19 +18,19 @@
     @if($board->is_comment == 'y')
     @if(!$comments->isEmpty())
     <div class="d-flex justify-content-between align-items-center">
-        <h5 class="card-title">{{ __('layout.comment_list') }}</h5>    
+        <h5 class="card-title">{{ __('layout.comment_list') }}</h5>
     </div>
     <hr>
     <div class="list-group">
         @foreach($comments as $comment)
             <div class="list-group-item">
-                <i class="ti ti-corner-down-right"></i>    
+                <i class="ti ti-corner-down-right"></i>
                 <strong>{{ $comment->user ? $comment->user->name : $comment->admin->name }}</strong>
                 @if($comment->admin)
                     <span class="badge bg-danger">{{ __('system.admin') }}</span>
                 @endif
                 <div class="ms-4">
-                    <p>{!! $comment->content !!}</p>
+                    <p>{!! nl2br(e($comment->content)) !!}</p>
                     <small>{{ $comment->created_at->format('Y-m-d h:i:s') }}</small>
                 </div>
             </div>

@@ -14,6 +14,11 @@
                     DAO
                 </a>
             </li>
+            <li class="nav-item" role="presentation">
+                <a href="{{ route('admin.user.policy', ['mode' => 'referral']) }}" class="nav-link">
+                    추천보너스
+                </a>
+            </li>
         </ul>
         <div class="card">
             <div class="card-body">
@@ -25,7 +30,7 @@
                 <div class="table-responsive">
                     <table class="table text-nowrap align-middle mb-0 table-striped">
                         <thead>
-                            <tr class="border-2 border-bottom border-primary border-0"> 
+                            <tr class="border-2 border-bottom border-primary border-0">
                                 <th scope="col" class="ps-0 text-center">이름</th>
                                 <th scope="col" class="text-center">레벨</th>
                                 <th scope="col" class="text-center">기본 매출</th>
@@ -48,7 +53,7 @@
                                 <td class="text-center">
                                     <button class="btn btn-sm btn-danger updateBtn">수정</button>
                                 </td>
-                            </tr>                    
+                            </tr>
                             @endforeach
                         </tbody>
                     </table>
@@ -66,7 +71,7 @@
                 <div class="table-responsive">
                     <table class="table text-nowrap align-middle mb-0 table-striped">
                         <thead>
-                            <tr class="border-2 border-bottom border-primary border-0"> 
+                            <tr class="border-2 border-bottom border-primary border-0">
                                 <th scope="col" class="ps-0 text-center">이름</th>
                                 <th scope="col" class="ps-0 text-center">변경 내용</th>
                                 <th scope="col" class="ps-0 text-center">변경 전</th>
@@ -84,7 +89,7 @@
                                 <td class="text-center">{{ $val->new_value }}</td>
                                 <td class="text-center">{{ $val->name }}</td>
                                 <td class="text-center">{{ $val->created_at }}</td>
-                            </tr>                    
+                            </tr>
                             @endforeach
                         </tbody>
                     </table>

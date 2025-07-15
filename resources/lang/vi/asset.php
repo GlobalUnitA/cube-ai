@@ -79,4 +79,6 @@ return array (
   'manual_deposit' => 'Nạp tiền thủ công',
   'trading_profit' => 'Lợi nhuận',
   'staking_profit' => 'Lợi nhuận Staking',
+  'referral_bonus' => '',
+  'total_referral_bonus' => '',
 );

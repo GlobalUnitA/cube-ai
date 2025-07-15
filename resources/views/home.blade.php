@@ -30,7 +30,7 @@
     <div class="mb-2">
         @isset($notice)
         <a href="{{ route('board.view', ['code' => $notice->board->board_code, 'mode' => 'view', 'id' => $notice->id]) }}" >
-            <div class="alert alert-light d-flex" role="alert">    
+            <div class="alert alert-light d-flex" role="alert">
                 <img src="{{ asset('images/icon_notice.svg') }}">
                 <p class="fs-3 ms-2 mb-0 flex-grow-1">{{ $notice->subject }}</p>
             </div>
@@ -51,19 +51,23 @@
                     <p>Some representative placeholder content for the first slide.</p> -->
                 </div>
             </div>
-                <div class="carousel-item">
-                <img src="{{ asset('images/slide_bg_02.jpg') }}" class="d-block w-100" alt="...">
-                <div class="carousel-caption d-none d-md-block">
-                    <!-- <h5>Second slide label</h5>
-                    <p>Some representative placeholder content for the second slide.</p> -->
-                </div>
+            <div class="carousel-item">
+                <a href="{{ route('about') }}">
+                    <img src="{{ asset('images/slide_bg_02.jpg') }}" class="d-block w-100" alt="...">
+                    <div class="carousel-caption d-none d-md-block">
+                        <!-- <h5>Second slide label</h5>
+                        <p>Some representative placeholder content for the second slide.</p> -->
+                    </div>
+                </a>
             </div>
             <div class="carousel-item">
-                <img src="{{ asset('images/slide_bg_03.jpg') }}" class="d-block w-100" alt="...">
-                <div class="carousel-caption d-none d-md-block">
-                    <!-- <h5>Third slide label</h5>
-                    <p>Some representative placeholder content for the third slide.</p> -->
-                </div>
+                <a href="{{ route('board.list', ['code' =>'product'])}}">
+                    <img src="{{ asset('images/slide_bg_03.jpg') }}" class="d-block w-100" alt="...">
+                    <div class="carousel-caption d-none d-md-block">
+                        <!-- <h5>Third slide label</h5>
+                        <p>Some representative placeholder content for the third slide.</p> -->
+                    </div>
+                </a>
             </div>
         </div>
         <!-- <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleCaptions" data-bs-slide="prev">
@@ -198,45 +202,45 @@
             <a href="{{ route('asset.deposit') }}" class="link-body-emphasis w-100" style="max-width: 25%">
                 <div class="d-flex align-items-center flex-column">
                     <img src="{{ asset('/images/icon/icon_main_deposit.png') }}" width="44" class="mb-1">
-                    <p class="m-0 fw-medium fs-3">{{ __('asset.deposit') }}</p>                    
+                    <p class="m-0 fw-medium fs-3">{{ __('asset.deposit') }}</p>
                 </div>
             </a>
             <a href="{{ route('asset.withdrawal') }}" class="link-body-emphasis w-100" style="max-width: 25%">
                 <div class="d-flex align-items-center flex-column">
                     <img src="{{ asset('/images/icon/icon_main_withdrawal.png') }}" width="44" class="mb-1">
-                    <p class="m-0 fw-medium fs-3">{{ __('asset.withdrawal') }}</p>                    
+                    <p class="m-0 fw-medium fs-3">{{ __('asset.withdrawal') }}</p>
                 </div>
             </a>
             <!--a href="{{ route('trading') }}" class="link-body-emphasis w-100" style="max-width: 25%">
                 <div class="d-flex align-items-center flex-column">
                 <img src="{{ asset('/images/icon/icon_main_trading.png') }}" width="44" class="mb-1">
-                    <p class="m-0 fw-medium fs-3">{{ __('asset.trading') }}</p>                    
+                    <p class="m-0 fw-medium fs-3">{{ __('asset.trading') }}</p>
                 </div>
-            </a-->           
+            </a-->
             <a href="{{ route('staking') }}" class="link-body-emphasis w-100" style="max-width: 25%">
                 <div class="d-flex align-items-center flex-column">
                 <img src="{{ asset('/images/icon/icon_main_investment.png') }}" width="44" class="mb-1">
-                    <p class="m-0 fw-medium fs-3">{{ __('staking.staking') }}</p>                    
+                    <p class="m-0 fw-medium fs-3">{{ __('staking.staking') }}</p>
                 </div>
-            </a>                
+            </a>
         </div>
         <!--div class="d-flex justify-content-start align-items-center">
         <a href="#" class="link-body-emphasis w-100" style="max-width: 25%">
                 <div class="d-flex align-items-center flex-column">
                 <img src="{{ asset('/images/icon/icon_main_withdrawal.svg') }}" width="44" class="mb-1">
-                    <p class="m-0 fw-medium fs-3">추가메뉴</p>                    
+                    <p class="m-0 fw-medium fs-3">추가메뉴</p>
                 </div>
             </a>
             <a href="#" class="link-body-emphasis w-100" style="max-width: 25%">
                 <div class="text-center">
-                    <p class="m-0 fw-medium fs-3"><span class="bg-light px-2 py-3 rounded-4">+ 추가</span></p>                    
+                    <p class="m-0 fw-medium fs-3"><span class="bg-light px-2 py-3 rounded-4">+ 추가</span></p>
                 </div>
-            </a>                
+            </a>
         </div-->
     </div>
     <div class="pb-5">
         <h5 class="mb-3">{{ __('etc.crypto_price') }}</h5>
-        <div class="row g-3">            
+        <div class="row g-3">
             <table class="table table-hover">
                 <thead>
                     <tr>
@@ -250,7 +254,7 @@
                         <th scope="row">BTC</th>
                         <td>121,960,000</td>
                         <td>+0.56%</td>
-                    </tr>                
+                    </tr>
                 </tbody>
                 </table>
         </div>
@@ -261,7 +265,7 @@
             <h3 class="text-white pb-4">CUBEAI Delivers<br>Real Results</</h3>
             <a href="{{ route('staking') }}" class="position-absolute w-100 px-3" style="bottom: 0; left: 0;">
                 <button class="btn btn-primary w-100 py-3 my-5 fs-4">Stake Now <span class="opacity-50">&</span> Earn Rewards!</button>
-            </a>           
+            </a>
         </div>
     </div>
 </main>

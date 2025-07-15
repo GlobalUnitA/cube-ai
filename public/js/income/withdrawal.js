@@ -2,12 +2,16 @@ $(document).ready(function() {
 
     $("input[name='income']").change(function () {
         calculateFinalAmount();
+
+        $('#stock').html($(this).data('balance'));
+        $('#stock-label').removeClass('d-none');
+        $('#stock-label').addClass('d-block');
     });
 
     $("input[name='amount']").on('input', function () {
         calculateFinalAmount();
     });
-    
+
     $('#withdrawalForm').submit(function (event) {
         event.preventDefault();
 
@@ -53,7 +57,7 @@ $(document).ready(function() {
                 }
             }
         });
-        
+
     });
 });
 

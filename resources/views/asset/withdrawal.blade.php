@@ -17,10 +17,10 @@
             @csrf
             <fieldset>
                 <legend class="mb-3 fs-4 text-body">{{ __('asset.select_withdrawal_asset_guide') }}</legend>
-                <div class="d-grid d-grid-col-2 mb-3">                    
+                <div class="d-grid d-grid-col-2 mb-3">
                 @foreach ($assets as $asset)
                     <div class="selectedAsset">
-                        <input type="radio" class="btn-check" name="asset" value="{{ $asset->encrypted_id }}" id="{{ $asset->coin->code }}" autocomplete="off">
+                        <input type="radio" class="btn-check" name="asset" value="{{ $asset->encrypted_id }}" id="{{ $asset->coin->code }}" autocomplete="off" data-balance="{{ $asset->balance }}">
                         <label class="btn btn-light w-100 p-4 rounded text-center fs-5 d-flex flex-column align-items-center" for="{{ $asset->coin->code }}">
                             <img src="{{ $asset->coin->image_urls[0] }}" width="40" alt="{{ $asset->coin->code }}" class="img-fluid mb-2">
                             {{ $asset->coin->name }}
@@ -28,12 +28,13 @@
                         <input type="hidden" class="tax_rate" value="{{ $asset->tax_rate }}">
                         <input type="hidden" class="fee_rate" value="{{ $asset->fee_rate }}">
                     </div>
-                @endforeach                                  
-                </div>                
+                @endforeach
+                </div>
             </fieldset>
             <div class="my-4">
                 <label class="form-label fs-4 text-body">{{ __('asset.withdrawal_amount_guide') }}</label>
                 <input type="text" name="amount" class="form-control mb-3"  placeholder="0">
+                <p class="mb-5 opacity-50 fw-light fs-4 d-none" id="stock-label">{{ __('system.stock_amount') }}: <span id="stock" class="fw-bold"></span></p>
                 <input type="hidden" name="tax">
                 <input type="hidden" name="fee">
                 <div>
@@ -51,7 +52,7 @@
                         <p class="mb-1">- {{ __('asset.withdrawal_tax_guide') }}</p>
                     </div>
             </div>
-            <button type="submit" class="btn btn-primary w-100 py-3 mb-4 fs-4">{{ __('asset.withdrawal') }}</button>                                
+            <button type="submit" class="btn btn-primary w-100 py-3 mb-4 fs-4">{{ __('asset.withdrawal') }}</button>
         </form>
     </div>
 </main>

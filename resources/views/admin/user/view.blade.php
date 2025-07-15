@@ -6,7 +6,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-title">회원 정보</h5>    
+                    <h5 class="card-title">회원 정보</h5>
                     <div>{{ $view->created_at }}</div>
                 </div>
                 <form method="POST" action="{{ route('admin.user.update') }}" id="ajaxForm" >
@@ -54,7 +54,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th class="text-center align-middle">주소</th>           
+                                <th class="text-center align-middle">주소</th>
                                 <td colspan=3>
                                     <div class="d-flex mb-3 align-middle">
                                         <div class="col-4 me-2">
@@ -69,7 +69,7 @@
                                 </td>
                             </tr>
                             <tr>
-                                <th class="text-center align-middle">USDT 주소(TRC20)</th>
+                                <th class="text-center align-middle">USDT(BNB Smart Chain)</th>
                                 <td colspan="3">
                                     <div class="d-flex align-items-center justify-content-between me-3">
                                         @if($view->profile->meta_uid)
@@ -116,7 +116,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h5 class="card-title">자산 정보</h5>    
+                    <h5 class="card-title">자산 정보</h5>
                 </div>
                 <hr>
                 <table class="table table-bordered mt-5 mb-5">
@@ -153,12 +153,12 @@
                 </table>
                 <hr>
                 @if (auth()->guard('admin')->user()->admin_level >= 3 )
-                <div class="d-flex justify-content-end align-items-center">    
+                <div class="d-flex justify-content-end align-items-center">
                     <a href="{{ route('admin.asset.deposit', ['id' => $view->id]) }}" class="btn btn-info">수동입금</a>
-                </div>    
+                </div>
                 @endif
             </div>
-        </div>    
+        </div>
     </div>
 </div>
 <form method="POST" action="{{ route('admin.user.reset') }}" id="resetForm">

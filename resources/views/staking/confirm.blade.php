@@ -11,7 +11,7 @@
     </div> -->
 </header>
 <main class="container-fluid py-5 mb-5">
-    <div class="px-3 mb-5">          
+    <div class="px-3 mb-5">
         <div class="my-4">
             <label class="form-label">{{ __('system.period') }}</label>
             <input type="text" value="{{ $staking->period }}" class="form-control mb-3" readonly>
@@ -29,12 +29,12 @@
                 <div class="col-6">
                     <p class="text-body fs-4 m-0">{{ __('system.started_at') }}</p>
                     <h3 class="text-primary fs-6 mb-1">{{ date_format($date['start'], 'Y-m-d') }}</h3>
-                </div>                        
+                </div>
                 <div class="col-6">
                     <p class="text-body fs-4 m-0">{{ __('system.ended_at') }}</p>
                     <h3 class="text-primary fs-6 mb-1">{{ date_format($date['end'], 'Y-m-d') }}</h3>
-                </div>                        
-            </div>                                          
+                </div>
+            </div>
         </div>
         <p class="mb-5">{{ $staking->staking_locale_memo }}</p>
         <form method="post" action="{{ route('staking.store') }}" id="ajaxForm">
@@ -44,7 +44,7 @@
                 <label class="form-label fs-4 text-body">{{ __('staking.participation_quantity_guide') }}</label>
                 <input type="text" name="amount" id="amount" class="form-control" placeholder=0 min="{{ $staking->min_quantity }}" max="{{ $staking->max_quantity }}">
             </div>
-            <p class="mb-5 opacity-50 fw-light fs-4">{{ __('asset.assets_held') }}: <span class="fw-bold">{{ $balance }}</span></p>
+            <p class="mb-5 opacity-50 fw-light fs-4">{{ __('system.stock_amount') }}: <span class="fw-bold">{{ $balance }}</span></p>
             <button type="submit" class="btn btn-primary w-100 py-3 mb-4 fs-4" >{{ __('staking.participate') }}</button>
         </form>
     </div>

@@ -7,6 +7,8 @@ use App\Exports\Income\IncomeWithdrawalExport;
 use App\Exports\Income\IncomeTradingProfitExport;
 use App\Exports\Income\IncomeSubscriptionBonusExport;
 use App\Exports\Income\IncomeStakingRewardExport;
+use App\Exports\Income\IncomeSubscriptionBonusExport;
+use App\Exports\Income\IncomeReferralBonusExport;
 use App\Models\UserProfile;
 use App\Models\Income;
 use App\Models\IncomeTransfer;
@@ -21,9 +23,9 @@ class IncomeController extends Controller
 
     public function __construct()
     {
-        
+
     }
-   
+
     public function list(Request $request)
     {
         $list = IncomeTransfer::where('income_transfers.type', $request->input('type', 'deposit'))
@@ -64,7 +66,7 @@ class IncomeController extends Controller
             }
         })
         ->when($request->filled('start_date') && $request->filled('end_date'), function ($query) use ($request) {
-            $start = Carbon::parse($request->start_date)->startOfDay(); 
+            $start = Carbon::parse($request->start_date)->startOfDay();
             $end = Carbon::parse($request->end_date)->endOfDay();
 
             $query->whereBetween('income_transfers.created_at', [$start, $end]);
@@ -72,7 +74,7 @@ class IncomeController extends Controller
         ->latest()
         ->orderBy('id', 'desc')
         ->paginate(10);
-    
+
         switch ($request->type) {
             case 'withdrawal' :
                 return view('admin.income.withdrawal-list', compact('list'));
@@ -82,18 +84,22 @@ class IncomeController extends Controller
                 return view('admin.income.profit-list', compact('list'));
             break;
 
-            case 'subscription_bonus' :
-                return view('admin.income.bonus-list', compact('list'));
-            break;
-
             case 'staking_reward' :
                 return view('admin.income.reward-list', compact('list'));
-            break;
-        
+                break;
+
+            case 'subscription_bonus' :
+                return view('admin.income.subscription-list', compact('list'));
+                break;
+
+            case 'referral_bonus' :
+                return view('admin.income.referral-list', compact('list'));
+                break;
+
             default :
                 return view('admin.income.deposit-list', compact('list'));
             break;
-        }        
+        }
     }
 
     public function view($id)
@@ -105,16 +111,16 @@ class IncomeController extends Controller
 
     public function update(Request $request)
     {
-        
+
         DB::beginTransaction();
 
         try {
 
             $transfer = IncomeTransfer::find($request->id);
-        
+
             $transfer->update(['memo' => $request->memo]);
-            
-            DB::commit(); 
+
+            DB::commit();
 
             return response()->json([
                 'status' => 'success',
@@ -133,7 +139,7 @@ class IncomeController extends Controller
                 'message' => '예기치 못한 오류가 발생했습니다.',
             ]);
         }
-        
+
     }
 
     public function export(Request $request)
@@ -153,13 +159,17 @@ class IncomeController extends Controller
                 return Excel::download(new IncomeTradingProfitExport($request->all()), '회원 트레이딩 수익 내역 '.$current.'.xlsx');
             break;
 
+            case 'staking_reward' :
+                return Excel::download(new IncomeStakingRewardExport($request->all()), '회원 스테이킹 수익 내역 '.$current.'.xlsx');
+                break;
+
             case 'subscription_bonus' :
                 return Excel::download(new IncomeSubscriptionBonusExport($request->all()), '회원 DAO 인센티브 내역 '.$current.'.xlsx');
             break;
 
-            case 'staking_reward' :
-                return Excel::download(new IncomeStakingRewardExport($request->all()), '회원 스테이킹 수익 내역 '.$current.'.xlsx');
-            break;
+            case 'referral_bonus' :
+                return Excel::download(new IncomeReferralBonusExport($request->all()), '회원 추천 보너스 내역 '.$current.'.xlsx');
+                break;
         }
     }
 }

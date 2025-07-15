@@ -54,17 +54,22 @@ class IncomeTransfer extends Model
     {
         return $this->hasOne(TradingProfit::class, 'transfer_id', 'id');
     }
-    
-    public function bonus()
+
+    public function subscriptionBonus()
     {
         return $this->hasOne(SubscriptionBonus::class, 'transfer_id', 'id');
+    }
+
+    public function referralBonus()
+    {
+        return $this->hasOne(ReferralBonus::class, 'transfer_id', 'id');
     }
 
     public function reward()
     {
         return $this->hasOne(StakingReward::class, 'transfer_id', 'id');
     }
-    
+
     public function getTypeTextAttribute()
     {
         switch ($this->type) {
@@ -79,7 +84,10 @@ class IncomeTransfer extends Model
             break;
             case 'subscription_bonus' :
                 return __('asset.subscription_bonus');
-            break;
+                break;
+            case 'referral_bonus' :
+                return __('asset.referral_bonus');
+                break;
             case 'staking_reward' :
                 return __('asset.staking_profit');
             break;
@@ -112,7 +120,7 @@ class IncomeTransfer extends Model
 
     public static function reflectDeposit()
     {
-        
+
         $deposit_period = AssetPolicy::first()->deposit_period;
 
         $cutoff = now()->subDays($deposit_period)->endOfDay();
@@ -126,7 +134,7 @@ class IncomeTransfer extends Model
         Log::channel('asset')->info('income transfer count', ['trasnfer_count' => count($transfers)]);
 
         foreach ($transfers as $deposit) {
-            
+
             DB::beginTransaction();
 
             try {
@@ -137,11 +145,11 @@ class IncomeTransfer extends Model
 
                 $before_balance = $asset->balance;
                 $amount = $deposit->amount;
-                $after_balance = $asset->balance + $amount; 
+                $after_balance = $asset->balance + $amount;
 
                 $asset->update(['balance' => $after_balance]);
                 $deposit->update(['status' => 'completed']);
-                
+
                 AssetTransfer::create([
                     'user_id' => $deposit->user_id,
                     'asset_id' => $asset->id,
@@ -152,12 +160,12 @@ class IncomeTransfer extends Model
                     'before_balance' => $before_balance,
                     'after_balance' => $after_balance,
                 ]);
-                
+
                 Log::channel('asset')->info('Deposited amount reflected to user asset balance', [
                     'user_id' => $asset->user_id,
                     'transfer_id' => $deposit->id,
                     'balance' => $amount,
-                    'before_balance' => $before_balance, 
+                    'before_balance' => $before_balance,
                     'after_balance' => $after_balance,
                     'timestamp' => now(),
                 ]);
