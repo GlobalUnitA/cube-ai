@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Income;
 
 use App\Models\Income;
 use App\Models\IncomeTransfer;
+use App\Models\AssetPolicy;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,9 +15,9 @@ class DepositController extends Controller
 {
     public function __construct()
     {
-                
+
     }
-    
+
     public function index()
     {
         $incomes = Income::where('user_id', auth()->id())
@@ -25,22 +26,24 @@ class DepositController extends Controller
         })
         ->get();
 
-        return view('income.deposit', compact('incomes'));
+        $internal_period = AssetPolicy::first()->internal_period;
+
+        return view('income.deposit', compact('incomes', 'internal_period'));
     }
 
 
     public function store(Request $request)
     {
-         
+
         $validated = $request->validate([
             'income' => 'required|string',
             'amount' => 'required|numeric',
         ]);
-       
+
         DB::beginTransaction();
 
-        try {       
-            
+        try {
+
             $income_id = Hashids::decode($validated['income']);
             $income = Income::findOrFail($income_id[0]);
 
@@ -55,6 +58,7 @@ class DepositController extends Controller
                 'user_id' => auth()->id(),
                 'income_id' => $income->id,
                 'type' => 'deposit',
+                'status' => 'waiting',
                 'amount' => $validated['amount'],
                 'actual_amount' => $validated['amount'],
                 'before_balance' => $income->balance,
@@ -64,14 +68,14 @@ class DepositController extends Controller
             $income->decrement('balance', $validated['amount']);
 
             DB::commit();
-        
+
             return response()->json([
                 'status' => 'success',
                 'message' => __('asset.deposit_apply_notice'),
                 'url' => route('home'),
             ]);
-        
-            
+
+
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -97,7 +101,7 @@ class DepositController extends Controller
             ->count();
 
         $has_more = $total_count > $limit;
-       
+
         return view('income.deposit-list', compact('list', 'has_more', 'limit'));
     }
 
@@ -114,10 +118,11 @@ class DepositController extends Controller
         $items = $query->skip($offset)->take($limit + 1)->get();
 
         $hasMore = $items->count() > $limit;
-        
+
         $items = $items->take($limit)->map(function ($item) {
             return [
                 'created_at' => $item->created_at->format('Y-m-d'),
+                'waiting_period' => $item->waiting_period,
                 'coin_code' => $item->asset->coin->code,
                 'status_text' => $item->status_text,
                 'amount' => $item->amount,
@@ -129,5 +134,5 @@ class DepositController extends Controller
             'hasMore' => $hasMore,
         ]);
     }
-    
+
 }

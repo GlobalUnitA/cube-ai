@@ -2,14 +2,14 @@
 
 @section('content')
 <div class="container py-5">
-    <h2 class="mb-3 text-center">{{ __('asset.deposit_list') }}</h2>
+    <h2 class="mb-3 text-center">{{ __('asset.transfer_list') }}</h2>
     <hr>
     <div class="table-responsive">
         <table class="table table-striped table-bordered m-0">
             <thead class="mb-2">
                 <tr>
                     <th>{{ __('system.date') }}</th>
-                    <th>{{ __('asset.assets') }}</th>
+                    <th>{{ __('system.waiting_period') }}</th>
                     <th>{{ __('system.status') }}</th>
                     <th>{{ __('system.amount') }}</th>
                 </tr>
@@ -18,11 +18,11 @@
                 @foreach($list as $key => $value)
                 <tr>
                     <td>{{ $value->created_at->format('Y-m-d') }}</td>
-                    <td>{{ $value->income->coin->code }}</td>
+                    <td>{{ $value->waiting_period }}{{ __('system.unit_day') }}</td>
                     <td>{{ $value->status_text }}</td>
                     <td>{{ $value->amount }}</td>
                 </tr>
-                @endforeach                
+                @endforeach
             </tbody>
         </table>
         @if($has_more)
@@ -42,6 +42,7 @@
 <template id="loadMoreTemplate">
     <tr>
         <td>{{created_at}}</td>
+        <td>{{waiting_period}}</td>
         <td>{{coin_code}}</td>
         <td>{{status_text}}</td>
         <td>{{amount}}</td>

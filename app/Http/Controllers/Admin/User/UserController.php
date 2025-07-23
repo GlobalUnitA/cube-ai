@@ -16,9 +16,9 @@ class UserController extends Controller
 {
     public function __construct()
     {
-        
+
     }
-    
+
 
     public function list(Request $request)
     {
@@ -45,7 +45,7 @@ class UserController extends Controller
             $end_date = Carbon::parse(request('end_date'))->endOfDay();
             $query->where('users.created_at', '<=', $end_date);
         })
-    
+
         ->orderBy('users.created_at', 'desc')
         ->paginate(10);
 
@@ -55,9 +55,9 @@ class UserController extends Controller
 
     public function view($id)
     {
-   
+
         $view = User::find($id);
-        
+
         if (!$view) {
             abort(404, '404 not found');
         }
@@ -67,7 +67,7 @@ class UserController extends Controller
 
     public function update(Request $request)
     {
-   
+
         $user = User::find($request->id);
         $user_profile = UserProfile::where('user_id', $request->id)->first();
 
@@ -79,10 +79,11 @@ class UserController extends Controller
 
                 $user->update([
                     'name' => $request->name,
-                    'password' => $request->password ? Hash::make($request->password) : $user->password, 
+                    'password' => $request->password ? Hash::make($request->password) : $user->password,
                 ]);
 
                 $user_profile->update([
+                    'email' => $request->email,
                     'phone' => $request->phone,
                     'pcc' => $request->pcc,
                     'post_code' => $request->post_code,
@@ -114,7 +115,7 @@ class UserController extends Controller
 
     public function reset(Request $request)
     {
-   
+
         $user = User::find($request->user_id);
 
         DB::beginTransaction();
@@ -149,7 +150,7 @@ class UserController extends Controller
                 'message' => '예기치 못한 오류가 발생했습니다.',
             ]);
         }
-        
+
     }
 
     public function export(Request $request)

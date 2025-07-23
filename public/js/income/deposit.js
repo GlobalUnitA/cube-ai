@@ -1,5 +1,12 @@
 $(document).ready(function() {
-   
+
+    $("input[name='income']").change(function () {
+
+        $('#stock').html($(this).data('balance'));
+        $('#stock-label').removeClass('d-none');
+        $('#stock-label').addClass('d-block');
+    });
+
     $('#depositForm').submit(function (event) {
         event.preventDefault();
 
@@ -17,7 +24,7 @@ $(document).ready(function() {
         }
 
         const formData = new FormData(this);
-        
+
         $.ajax({
             url: $(this).attr('action'),
             type: 'POST',
@@ -45,7 +52,7 @@ $(document).ready(function() {
                     alertModal(errorNotice);
                 }
             }
-        });        
+        });
     });
-    
+
 });

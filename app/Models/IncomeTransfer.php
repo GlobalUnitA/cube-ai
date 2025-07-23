@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class IncomeTransfer extends Model
 {
@@ -38,6 +39,7 @@ class IncomeTransfer extends Model
     protected $appends = [
         'status_text',
         'type_text',
+        'waiting_period',
     ];
 
     public function user()
@@ -118,12 +120,32 @@ class IncomeTransfer extends Model
         }
     }
 
+    public function getWaitingPeriodAttribute()
+    {
+        $created_at = $this->created_at;
+        $internal_period = AssetPolicy::first()->internal_period;
+
+        $start_date = Carbon::parse($created_at)->startOfDay();
+        $end_date = $start_date->copy()->addDays($internal_period);
+
+        $now = Carbon::now()->startOfDay();
+
+        if ($now->gte($end_date) || $this->status == 'canceled' || $this->status == 'refunded') {
+            return 0;
+        }
+
+        $waiting_period = $now->diffInDays($end_date);
+
+        return $waiting_period;
+
+    }
+
     public static function reflectDeposit()
     {
 
-        $deposit_period = AssetPolicy::first()->deposit_period;
+        $internal_period = AssetPolicy::first()->internal_period;
 
-        $cutoff = now()->subDays($deposit_period)->endOfDay();
+        $cutoff = now()->subDays($internal_period)->endOfDay();
 
         $transfers = self::where('status', 'waiting')
             ->where('type', 'deposit')
@@ -161,7 +183,7 @@ class IncomeTransfer extends Model
                     'after_balance' => $after_balance,
                 ]);
 
-                Log::channel('asset')->info('Deposited amount reflected to user asset balance', [
+                Log::channel('asset')->info('Deposited amount reflected to user income balance', [
                     'user_id' => $asset->user_id,
                     'transfer_id' => $deposit->id,
                     'balance' => $amount,

@@ -40,7 +40,7 @@ class AssetTransfer extends Model
         'image_urls' => 'array',
     ];
 
-    protected $appends = 
+    protected $appends =
     [
         'status_text',
         'type_text',
@@ -64,7 +64,7 @@ class AssetTransfer extends Model
         $amount_in_usdt = $this->amount * (float) $price;
 
         return $amount_in_usdt;
-       
+
     }
 
     public function getTypeTextAttribute()
@@ -77,7 +77,7 @@ class AssetTransfer extends Model
                 return __('asset.withdrawal');
             break;
             case 'internal' :
-                return __('asset.internal');
+                return __('asset.internal_transfer');
             break;
             case 'manual_deposit' :
                 return __('asset.manual_deposit');
@@ -148,7 +148,7 @@ class AssetTransfer extends Model
         Log::channel('asset')->info('transfer count', ['trasnfer_count' => count($transfers)]);
 
         foreach ($transfers as $deposit) {
-            
+
             DB::beginTransaction();
 
             try {
@@ -156,12 +156,12 @@ class AssetTransfer extends Model
 
                 $before_balance = $asset->balance;
                 $amount = $deposit->amount;
-                $after_balance = $asset->balance + $amount; 
+                $after_balance = $asset->balance + $amount;
 
                 $asset->update(['balance' => $after_balance]);
                 $deposit->update([
                     'status' => 'completed',
-                    'before_balance' => $before_balance, 
+                    'before_balance' => $before_balance,
                     'after_balance' => $after_balance,
                 ]);
 
@@ -169,7 +169,7 @@ class AssetTransfer extends Model
                     'user_id' => $asset->user_id,
                     'transfer_id' => $deposit->id,
                     'balance' => $amount,
-                    'before_balance' => $before_balance, 
+                    'before_balance' => $before_balance,
                     'after_balance' => $after_balance,
                     'timestamp' => now(),
                 ]);
@@ -180,7 +180,7 @@ class AssetTransfer extends Model
 
                 $profile->checkUserValidity();
                 $profile->checkUserGrade();
-                
+
 
             } catch (\Throwable $e) {
 
