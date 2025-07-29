@@ -20,8 +20,8 @@ use Exception;
 
 class RegisterController extends Controller
 {
-    
-  
+
+
     /**
     * Display the form for creating a new user.
     *
@@ -29,7 +29,7 @@ class RegisterController extends Controller
     * @return \Illuminate\View\View
     */
     public function index($mid=null)
-    {   
+    {
         return view('auth.register', compact('mid'));
     }
 
@@ -44,7 +44,7 @@ class RegisterController extends Controller
         $validated = $this->validator($request->all())->validate();
 
         try {
-            
+
             $user = $this->create($validated);
 
             Auth::login($user);
@@ -56,7 +56,7 @@ class RegisterController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            
+
             return response()->json([
                 'status' => 'error',
                 'message' => __('auth.register_failed_notice'),
@@ -64,7 +64,7 @@ class RegisterController extends Controller
         }
     }
 
-   
+
     public function accountCheck(Request $request)
     {
         $account = trim($request->account);
@@ -86,7 +86,7 @@ class RegisterController extends Controller
 
     public function emailCheck(Request $request)
     {
-        
+
         $exists = UserProfile::where('email', $request->email)->exists();
 
         return response()->json([
@@ -97,7 +97,7 @@ class RegisterController extends Controller
 
     public function parentCheck(Request $request)
     {
-        
+
         $exists = User::where('id', $request->parentId)->exists();
 
         return response()->json([
@@ -115,13 +115,13 @@ class RegisterController extends Controller
     private function validator(array $data)
     {
         return Validator::make($data, [
-            'name' => ['required', 'string', 'max:255'],
-            'account' => ['required', 'string', 'max:255', 'unique:users'],
+            'name' => ['required', 'string', 'max:255', 'regex:/^[가-힣a-zA-Z\s]+$/u'],
+            'account' => ['required', 'string', 'min:4', 'max:20', 'regex:/^[a-zA-Z0-9_-]+$/', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'max:16', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).+$/', 'confirmed'],
             'email' => ['required', 'string', 'email', 'max:255'],
-            'phone' => ['required', 'string', 'min:9', 'max:12'],
+            'phone' => ['required', 'string', 'min:9', 'max:12', 'regex:/^[\d+]+$/'],
             'parentId' => ['required', 'integer'],
-            'metaUid' => ['nullable', 'string', 'max:50'],
+            'metaUid' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z0-9]+$/'],
         ]);
     }
 
@@ -153,7 +153,7 @@ class RegisterController extends Controller
                 'account' => $data['account'],
                 'password' => Hash::make($data['password'])
             ]);
-    
+
             $user_profile = UserProfile::create([
                 'user_id' => $user->id,
                 'parent_id' => $parent->id,
@@ -188,11 +188,11 @@ class RegisterController extends Controller
             return $user;
 
         } catch (Exception $e) {
-          
+
             DB::rollBack();
-            
+
             throw new Exception('회원가입에 실패하였습니다. 다시 시도해주세요.' . $e->getMessage());
-        }        
+        }
     }
 
 }
