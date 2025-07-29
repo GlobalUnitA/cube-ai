@@ -7,7 +7,7 @@ function number_format(number) {
     number = parseFloat(number);
     if (isNaN(number)) return '0';
     const fixedNumber = number.toFixed(0);
-    
+
     const parts = fixedNumber.split('.');
     let integerPart = parts[0];
     let decimalPart = parts[1] || '';
@@ -30,11 +30,11 @@ function alertModal(message, url) {
         $('#alertMessage').html(message);
         $('#alertModal').modal('show');
 
-        $('#confirmBtn').off('click').on('click', function() { 
+        $('#confirmBtn').off('click').on('click', function() {
             $('#alertModal').modal('hide');
         });
     }
-    
+
     $('#alertModal').off('hidden.bs.modal').on('hidden.bs.modal', function () {
         if (url) {
             if (url === 'back') {
@@ -116,9 +116,9 @@ function logout() {
 }
 
 $(document).ready(function() {
-   
+
     $('#ajaxForm').on('submit', function(e) {
-        
+
         e.preventDefault();
 
         const form = $(this)[0];
@@ -136,14 +136,14 @@ $(document).ready(function() {
     });
 
     $('#loadMoreForm').on('submit', function(e) {
-        
+
         e.preventDefault();
 
         const form = $(this);
         const container = $('#loadMoreContainer');
         const template = $('#loadMoreTemplate').html();
         const formData = new FormData(this);
-    
+
         $.ajax({
             url: form.attr('action'),
             type: 'POST',
@@ -160,11 +160,11 @@ $(document).ready(function() {
                     console.log(row);
                     container.append(row);
                 });
-    
+
                 const offset = form.find('input[name="offset"]');
                 const limit = parseInt(form.find('input[name="limit"]').val());
                 offset.val(parseInt(offset.val()) + limit);
-    
+
                 if (!res.hasMore) {
                     form.find('button[type="submit"]').hide();
                 }
@@ -188,12 +188,12 @@ $(document).ready(function() {
             height: '1px',
             opacity: 0
         }).val(text);
-    
+
         $('body').append($textarea);
-    
+
         $textarea.focus();
         $textarea.select();
-    
+
         try {
             const succes = document.execCommand('copy');
             if (succes) {
@@ -201,9 +201,9 @@ $(document).ready(function() {
             }
         } catch (err) {
             console.error('복사 실패:', err);
-            
+
         }
-    
+
         $textarea.remove();
     });
 
@@ -241,17 +241,31 @@ $(document).ready(function() {
         });
     });
 
-   
-    if (!document.cookie.includes('popupDismissed=true')) {
-        $('#popupModal').modal('show');
-    }
+    $('.closePopup').on('click', function () {
 
-    $('#closePopup').on('click', function () {
-        if ($('#dismissPopup').prop('checked')) {
-            const now = new Date();
-            now.setHours(23, 59, 59, 999);
-            document.cookie = 'popupDismissed=true; expires=' + now.toUTCString() + '; path=/';
-        } 
-        $('#popupModal').modal('hide');
+        const popupId = $(this).data('popup');
+
+        if ($(`#dismissPopup-${popupId}`).prop('checked')) {
+
+            $.ajax({
+                url: '/popup/hide',
+                method: 'POST',
+                data: {
+                    id: popupId
+                },
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                error: function (xhr) {
+                    console.error('Error:', xhr.responseText);
+                }
+            });
+        }
+
+        $(`#popupModal-${popupId}`).modal('hide');
+    });
+
+    $('[id^="popupModal-"]').each(function () {
+        $(this).modal('show');
     });
 });

@@ -28,7 +28,7 @@
                             <div class="table-responsive">
                                 <table class="table text-nowrap align-middle mb-0 table-striped table-hover">
                                     <thead>
-                                        <tr class="border-2 border-bottom border-primary border-0"> 
+                                        <tr class="border-2 border-bottom border-primary border-0">
                                             <th scope="col" class="ps-0 text-center"></th>
                                             <th scope="col" class="text-center">번호</th>
                                             <th scope="col" class="text-center">제목</th>
@@ -42,7 +42,15 @@
                                         <tr>
                                             <td scope="row" class="ps-0 fw-medium text-center"><input type="checkbox" name="check[]" value="{{ $value->id }}" class="form-check-input" /></td>
                                             <td class="text-center">{{ $list->firstItem() + $key }}</td>
-                                            <td class="text-center cursor-pointer" onclick="window.location='{{ route('admin.post.view', ['code' => $selected_board->board_code, 'mode' => 'view', 'id' => $value->id]) }}';" >{{ $value->subject }}</td>
+                                            <td class="text-center cursor-pointer" onclick="window.location='{{ route('admin.post.view', ['code' => $selected_board->board_code, 'mode' => 'view', 'id' => $value->id]) }}';" >
+                                                {{ $value->subject }}
+                                                @if ($value->is_popup == 'y')
+                                                    <span class="badge bg-success">팝업</span>
+                                                @endif
+                                                @if ($value->is_banner == 'y')
+                                                    <span class="badge bg-info">배너</span>
+                                                @endif
+                                            </td>
                                             <td class="text-center">
                                                 @if ($value->admin)
                                                     {{ $value->admin->account }} <span class="badge bg-danger">관리자</span>
@@ -63,7 +71,7 @@
                                     </tbody>
                                 </table>
                             </div>
-                            <div class="d-flex mt-5">     
+                            <div class="d-flex mt-5">
                                 <button type="submit" id="postDeletebtn" class="btn btn-danger ms-auto">게시글 삭제</button>
                             </div>
                         </form>

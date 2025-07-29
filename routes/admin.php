@@ -142,17 +142,17 @@ Route::middleware(['admin.auth', 'otp'])->group(function () {
                 });
             });
         });
-    });
 
-    Route::middleware(['check_admin_level:3'])->group(function () {
         Route::prefix('staking')->group(function () {
             Route::get('list', [StakingController::class, 'list'])->name('admin.staking.list');
-            Route::prefix('policy')->group(function () {
-                Route::get('/', [StakingPolicyController::class, 'index'])->name('admin.staking.policy');
-                 Route::get('export', [StakingPolicyController::class, 'export'])->name('admin.staking.policy.export');
-                Route::get('{mode}/{id?}', [StakingPolicyController::class, 'view'])->name('admin.staking.policy.view');
-                Route::post('store', [StakingPolicyController::class, 'store'])->name('admin.staking.policy.store');
-                Route::post('update', [StakingPolicyController::class, 'update'])->name('admin.staking.policy.update');
+            Route::middleware(['check_admin_level:3'])->group(function () {
+                Route::prefix('policy')->group(function () {
+                    Route::get('/', [StakingPolicyController::class, 'index'])->name('admin.staking.policy');
+                    Route::get('export', [StakingPolicyController::class, 'export'])->name('admin.staking.policy.export');
+                    Route::get('{mode}/{id?}', [StakingPolicyController::class, 'view'])->name('admin.staking.policy.view');
+                    Route::post('store', [StakingPolicyController::class, 'store'])->name('admin.staking.policy.store');
+                    Route::post('update', [StakingPolicyController::class, 'update'])->name('admin.staking.policy.update');
+                });
             });
         });
     });
@@ -160,6 +160,8 @@ Route::middleware(['admin.auth', 'otp'])->group(function () {
     Route::prefix('board')->group(function () {
         Route::middleware(['check_admin_level:3'])->group(function () {
             Route::get('list', [BoardController::class, 'list'])->name('admin.board.list');
+            Route::get('view/{id}', [BoardController::class, 'view'])->name('admin.board.view');
+            Route::post('update', [BoardController::class, 'update'])->name('admin.board.update');
         });
         Route::prefix('post')->group(function () {
             Route::get('/{code}', [PostController::class, 'list'])->name('admin.post.list');

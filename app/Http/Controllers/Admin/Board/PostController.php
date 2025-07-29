@@ -38,7 +38,7 @@ class PostController extends Controller
         })
         ->where('board_id', $selected_board->id)
         ->orderBy('posts.created_at', 'desc')
-        ->paginate(10); 
+        ->paginate(10);
 
         $list->appends(request()->all());
 
@@ -57,7 +57,7 @@ class PostController extends Controller
         $mode = $request->mode;
         $board = Board::where('board_code', $request->code)->first();
         $view = Post::find($request->id);
-        
+
         if($mode == 'view') {
             $user = User::find($view->user_id);
             $comments = Comment::where('board_id', $board->id)
@@ -71,8 +71,8 @@ class PostController extends Controller
                 'user' => $user,
                 'comments' => $comments,
             ];
-       
-            return view('admin.board.view', $data);
+
+            return view('admin.board.post-view', $data);
         } else if($mode == 'comment') {
             $user = User::find($view->user_id);
             $comments = Comment::where('board_id', $board->id)
@@ -121,7 +121,7 @@ class PostController extends Controller
                 $new_url = asset('storage/' . $new_path);
                 $content = str_replace($url, $new_url, $content);
 
-                $content = preg_replace('/<img(.*?)src=["\']' . preg_quote($new_url, '/') . '["\'](.*?)>/', 
+                $content = preg_replace('/<img(.*?)src=["\']' . preg_quote($new_url, '/') . '["\'](.*?)>/',
                 '<img$1src="' . $new_url . '"$2 style="width:100%">', $content);
 
                 $final_images[] = $new_url;
@@ -131,7 +131,7 @@ class PostController extends Controller
         }
 
         DB::beginTransaction();
-    
+
         try{
 
             $is_popup = $request->has('is_popup') ? $request->is_popup : 'n';
@@ -144,9 +144,9 @@ class PostController extends Controller
                 'content' => $content,
                 'image_urls' => $final_images,
                 'is_popup' => $is_popup,
-                'is_banner' => $is_banner,         
+                'is_banner' => $is_banner,
             ]);
-    
+
             DB::commit();
 
             return response()->json([
@@ -156,7 +156,7 @@ class PostController extends Controller
             ]);
 
         } catch (Exception $e) {
-          
+
             DB::rollBack();
 
             \Log::error('Failed to write post', ['error' => $e->getMessage()]);
@@ -165,7 +165,7 @@ class PostController extends Controller
                 'status' => 'error',
                 'message' => '예기치 못한 오류가 발생했습니다.',
             ]);
-        }        
+        }
     }
 
 
@@ -197,7 +197,7 @@ class PostController extends Controller
 
                         $content = str_replace($url, $new_url, $content);
 
-                        $content = preg_replace('/<img(.*?)src=["\']' . preg_quote($new_url, '/') . '["\'](.*?)>/', 
+                        $content = preg_replace('/<img(.*?)src=["\']' . preg_quote($new_url, '/') . '["\'](.*?)>/',
                         '<img$1src="' . $new_url . '"$2 style="width:100%">', $content);
 
                         $final_images[] = $new_url;
@@ -207,7 +207,7 @@ class PostController extends Controller
                 }
 
                 if ($existing_images) {
-                    $images_to_delete = array_diff($existing_images, $final_images); 
+                    $images_to_delete = array_diff($existing_images, $final_images);
 
                     foreach ($images_to_delete as $image_to_delete) {
                         $relative_path = str_replace(asset('storage'), 'public', $image_to_delete);
@@ -222,7 +222,7 @@ class PostController extends Controller
 
                 $post->update([
                     'subject' => $request->subject,
-                    'content' => $content,  
+                    'content' => $content,
                     'image_urls' => $final_images,
                     'is_popup' => $is_popup,
                     'is_banner' => $is_banner,

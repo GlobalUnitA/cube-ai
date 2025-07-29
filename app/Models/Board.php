@@ -14,6 +14,7 @@ class Board extends Model
         'board_name',
         'board_level',
         'is_comment',
+        'is_popup',
     ];
 
     protected $appends = [
@@ -30,7 +31,7 @@ class Board extends Model
             case 'qna' :
                 return __('layout.qna');
             break;
-        
+
             case 'about' :
                 return __('layout.company_about');
             break;

@@ -12,7 +12,7 @@
                         @else
                         게시글 수정
                         @endif
-                    </h5>    
+                    </h5>
                 </div>
                 @if($mode == 'write')
                 <form method="POST" id="boardForm" action="{{ route('admin.post.write') }}" >
@@ -34,7 +34,7 @@
                                     <input type="text" name="subject" id="subject" value="{{ $view->subject ?? '' }}" class="form-control">
                                 </td>
                             </tr>
-                            @if($board->board_code == 'notice')
+                            @if($board->is_popup == 'y')
                             <tr>
                                 <th class="text-center align-middle">팝업</th>
                                 <td colspan=3 class="align-middle">
@@ -52,7 +52,7 @@
                                 </td>
                             </tr>
                             @endif
-                            @if($board->board_code == 'event')
+                            @if($board->is_banner == 'y')
                             <tr>
                                 <th class="text-center align-middle">배너</th>
                                 <td colspan=3 class="align-middle">
