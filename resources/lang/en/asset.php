@@ -18,9 +18,7 @@ return array (
     'total_deposit_amount' => 'Total Deposit Amount',
     'usdt_deposit_address' => 'USDT Deposit Address',
     'usdt_deposit_notice' => 'USDT Deposit Notice',
-    'usdt_deposit_guide' => 'Only USDT deposits via the Tron network (TRC-20) are supported.
-Deposits using the Ethereum network (ERC-20) or smart contracts are not available.
-Please verify the network settings on the sending exchange before making a deposit.',
+    'usdt_deposit_guide' => 'Only USDT deposits on the BNB Smart Chain are supported.',
     'deposit_apply_notice' => 'Your request has been submitted. Once the deposit is successful, it will be reflected in your assets.',
     'usdt_image_upload_guide' => 'After successfully transferring USDT, please capture the screen and upload it.',
     'select_withdrawal_asset_guide' => 'Please select the cryptocurrency to withdraw.',

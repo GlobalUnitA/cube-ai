@@ -18,8 +18,7 @@ return array (
     'total_deposit_amount' => '総入金数量',
     'usdt_deposit_address' => 'USDT入金アドレス',
     'usdt_deposit_notice' => 'USDT入金の注意事項',
-    'usdt_deposit_guide' => 'トロンネットワーク（TRC-20）上でのUSDT入金のみ対応しています。
-イーサリアムネットワーク（ERT-20）またはスマートコントラクトを使用した入金はできませんので、出金元の取引所で必ずご確認のうえ、入金してください。',
+    'usdt_deposit_guide' => 'BNBスマートチェーン上でのUSDT入金のみ対応しています。',
     'deposit_apply_notice' => '申請が完了しました。入金が成功すると、保有資産に反映されます。',
     'usdt_image_upload_guide' => 'USDTの送金が完了した後、該当画面をスクリーンショットしてアップロードしてください。',
     'select_withdrawal_asset_guide' => '出金する仮想資産を選択してください。',

@@ -18,9 +18,7 @@ return array (
     'total_deposit_amount' => 'Tổng số tiền nạp',
     'usdt_deposit_address' => 'Địa chỉ nạp USDT',
     'usdt_deposit_notice' => 'Lưu ý nạp USDT',
-    'usdt_deposit_guide' => 'Chỉ hỗ trợ nạp USDT qua mạng Tron (TRC-20).
-Không hỗ trợ nạp qua mạng Ethereum (ERC-20) hoặc hợp đồng thông minh.
-Vui lòng kiểm tra kỹ thông tin mạng trên sàn giao dịch trước khi thực hiện nạp tiền.',
+    'usdt_deposit_guide' => 'Chỉ hỗ trợ nạp USDT trên BNB Smart Chain.',
     'deposit_apply_notice' => 'Yêu cầu đã được gửi. Sau khi nạp tiền thành công, số dư sẽ được cập nhật trong tài sản của bạn.',
     'usdt_image_upload_guide' => 'Sau khi chuyển USDT thành công, vui lòng chụp màn hình và tải lên.',
     'select_withdrawal_asset_guide' => 'Vui lòng chọn loại tiền điện tử muốn rút.',

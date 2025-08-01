@@ -18,7 +18,7 @@ return array (
     'total_deposit_amount' => '总充值数量',
     'usdt_deposit_address' => 'USDT 充值地址',
     'usdt_deposit_notice' => 'USDT充值注意事项',
-    'usdt_deposit_guide' => '本平台仅支持通过波场网络（TRC-20）充值USDT。不支持以太坊网络（ERC-20）或使用智能合约的充值，请您务必在提币交易所确认网络后再进行充值。',
+    'usdt_deposit_guide' => '仅支持在 BNB 智能链上的 USDT 充值。',
     'deposit_apply_notice' => '申请已提交，充值成功后将自动反映至您的资产中。',
     'usdt_image_upload_guide' => 'USDT转账成功后，请截图该页面并上传。',
     'select_withdrawal_asset_guide' => '请选择需提币的加密货币。',
