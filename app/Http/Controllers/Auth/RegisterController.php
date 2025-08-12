@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\EmailVerificationCode;
 use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\UserOtp;
@@ -10,9 +11,9 @@ use App\Models\Coin;
 use App\Models\Asset;
 use App\Models\Income;
 use Illuminate\Http\Request;
-use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -23,25 +24,34 @@ class RegisterController extends Controller
 
 
     /**
-    * Display the form for creating a new user.
-    *
-    * @method GET
-    * @return \Illuminate\View\View
-    */
+     * Display the form for creating a new user.
+     *
+     * @method GET
+     * @return \Illuminate\View\View
+     */
     public function index($mid=null)
     {
         return view('auth.register', compact('mid'));
     }
 
     /**
-    * Register.
-    *
-    * @method POST
-    * @return \Illuminate\Http\JsonResponse
-    */
+     * Register.
+     *
+     * @method POST
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function register(Request $request)
     {
         $validated = $this->validator($request->all())->validate();
+
+        if (session('verification_code') != $request->code) {
+            return response()->json([
+                'status' => 'error',
+                'message' =>  __('auth.email_verification_failed_notice'),
+            ]);
+        }
+
+        session(['email_verified' => true]);
 
         try {
 
@@ -89,10 +99,33 @@ class RegisterController extends Controller
 
         $exists = UserProfile::where('email', $request->email)->exists();
 
-        return response()->json([
-            'status' => $exists ? 'error' : 'success',
-            'message' => $exists ? __('auth.email_already_taken_notice') : __('auth.email_available_notice'),
+        if ($exists) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('auth.email_already_taken_notice'),
+            ]);
+        }
+
+        $code = rand(100000, 999999);
+
+        session([
+            'verification_code' => $code,
+            'verified_email' => $request->email,
+            'email_verified' => false,
         ]);
+
+        try {
+            Mail::to($request->email)->send(new EmailVerificationCode($code));
+        } catch (\Symfony\Component\Mailer\Exception\TransportExceptionInterface $e) {
+            \Log::error('메일 전송 실패: ' . $e->getMessage());
+            return response()->json([
+                'status' => 'error',
+                'message' => __('auth.email_invalid_notice'),
+            ]);
+        }
+
+        return response()->json(['message' =>  __('auth.verify_code_sent_notice')]);
+
     }
 
     public function parentCheck(Request $request)
@@ -106,12 +139,12 @@ class RegisterController extends Controller
         ]);
     }
 
-     /**
-    * Form validation.
-    *
-    *
-    * @return Illuminate\Support\Facades\Validator
-    */
+    /**
+     * Form validation.
+     *
+     *
+     * @return Illuminate\Support\Facades\Validator
+     */
     private function validator(array $data)
     {
         return Validator::make($data, [
@@ -119,6 +152,7 @@ class RegisterController extends Controller
             'account' => ['required', 'string', 'min:4', 'max:20', 'regex:/^[a-zA-Z0-9_-]+$/', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'max:16', 'regex:/^(?=.*[a-zA-Z])(?=.*\d)(?=.*[\W_]).+$/', 'confirmed'],
             'email' => ['required', 'string', 'email', 'max:255'],
+            'code' => ['required', 'string'],
             'phone' => ['required', 'string', 'min:9', 'max:12', 'regex:/^[\d+]+$/'],
             'parentId' => ['required', 'integer'],
             'metaUid' => ['nullable', 'string', 'max:50', 'regex:/^[a-zA-Z0-9]+$/'],

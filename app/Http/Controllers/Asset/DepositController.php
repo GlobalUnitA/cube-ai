@@ -9,6 +9,7 @@ use App\Models\KakaoApi;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Intervention\Image\Facades\Image;
 use Vinkla\Hashids\Facades\Hashids;
 use Carbon\Carbon;
 
@@ -20,7 +21,7 @@ class DepositController extends Controller
     {
         $this->kakaoApi = new KakaoApi();
     }
-    
+
     public function index()
     {
         $assets = Asset::where('user_id', auth()->id())
@@ -39,25 +40,23 @@ class DepositController extends Controller
         $asset = Asset::findOrFail($asset_id[0]);
 
         $amount = $request['amount'];
-        
+
         return view('asset.deposit-confirm', compact(['asset', 'amount']));
     }
 
     public function store(Request $request)
     {
-    
-
         if (!$request->hasFile('file')) {
             return response()->json([
                 'status' => 'error',
                 'message' => __('etc.iamge_upload_notice'),
             ]);
         }
-        
+
         $validated = $request->validate([
             'asset' => 'required|string',
             'amount' => 'required|numeric',
-            'file' => 'required|image|mimes:jpeg,png,jpg|max:5120',
+            'file' => 'required|image|mimes:jpeg,png,jpg,webp,heic,heif|max:5120',
             'txid' => 'required|string|max:200',
         ]);
 
@@ -69,16 +68,20 @@ class DepositController extends Controller
                 'message' => __('etc.iamge_upload_notice'),
             ]);
         }
-       
+
         DB::beginTransaction();
 
-        try {       
-            
+        try {
             $asset_id = Hashids::decode($validated['asset']);
             $asset = Asset::findOrFail($asset_id[0]);
 
-            $file_name = '_' . time() . '_' . auth()->id() . '_' . $file->getClientOriginalName();
-            $file_path = $file->storeAs('public/uploads/deposit/', $file_name);
+            $file_name = '_' . time() . '_' . auth()->id() . '.jpg';
+            $save_path = storage_path('app/public/uploads/deposit/' . $file_name);
+
+            Image::make($file->getRealPath())
+                ->encode('jpg', 90)
+                ->save($save_path);
+
             $file_url[] = asset('storage/uploads/deposit/' . $file_name);
 
             $deposit = AssetTransfer::create([
@@ -105,8 +108,7 @@ class DepositController extends Controller
                 'message' => __('asset.deposit_apply_notice'),
                 'url' => route('home'),
             ]);
-        
-            
+
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -150,7 +152,7 @@ class DepositController extends Controller
         $items = $query->skip($offset)->take($limit + 1)->get();
 
         $hasMore = $items->count() > $limit;
-        
+
         $items = $items->take($limit)->map(function ($item) {
             return [
                 'created_at' => $item->created_at->format('Y-m-d'),

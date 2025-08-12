@@ -207,6 +207,19 @@ $(document).ready(function() {
         $textarea.remove();
     });
 
+    $('.preview-box').each(function () {
+
+        const $box = $(this);
+        import('./upload.js').then(module => {
+            module.upload(
+                $box.find('.file-input'),
+                $box.find('.svg-icon'),
+                $box.find('.img-preview'),
+                $box
+            );
+        });
+    });
+
     $('#images').on('change', function (event) {
         const previewContainer = $('#preview');
         previewContainer.empty();

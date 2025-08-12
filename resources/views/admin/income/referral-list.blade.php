@@ -25,6 +25,9 @@
                         <li class="nav-item" role="presentation">
                             <a href="{{ route('admin.income.list', array_merge(request()->query(), ['type' => 'referral_bonus'])) }}" class="nav-link {{ Request('type') == 'referral_bonus' ? 'active' : '' }}">추천 보너스</a>
                         </li>
+                        <li class="nav-item" role="presentation">
+                            <a href="{{ route('admin.income.list', array_merge(request()->query(), ['type' => 'rank_bonus'])) }}" class="nav-link {{ Request('type') == 'rank_bonus' ? 'active' : '' }}">직급 보너스</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="card">
@@ -82,7 +85,7 @@
                         <div class="table-responsive">
                             <table class="table text-nowrap align-middle mb-0 table-striped table-hover">
                                 <thead>
-                                    <tr class="border-2 border-bottom border-primary border-0"> 
+                                    <tr class="border-2 border-bottom border-primary border-0">
                                         <th scope="col" class="text-center">번호</th>
                                         <th scope="col" class="text-center">UID</th>
                                         <th scope="col" class="text-center">이름</th>
