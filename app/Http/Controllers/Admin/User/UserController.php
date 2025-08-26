@@ -10,6 +10,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
@@ -23,31 +24,31 @@ class UserController extends Controller
     public function list(Request $request)
     {
         $list = DB::table('users')
-        ->join('user_profiles', 'users.id', '=', 'user_profiles.user_id')
-        ->join('user_grades', 'user_profiles.grade_id', '=', 'user_grades.id')
-        ->select('user_profiles.*', 'users.name', 'users.account', 'user_grades.name as grade_name')
-        ->when(request('keyword') != '', function ($query) {
-            if(request('category') == 'mid'){
-                $query->where('users.id', request('keyword'));
-            } else if (request('category') == 'account') {
-                $query->where('users.account', request('keyword'));
-            } else if (request('category') == 'name') {
-                $query->where('users.name', request('keyword'));
-            } else {
-                $query->where('user_profiles.phone', request('keyword'));
-            }
-        })
-        ->when(request('start_date'), function ($query) {
-            $start_date = Carbon::parse(request('start_date'))->startOfDay();
-            $query->where('users.created_at', '>=', $start_date);
-        })
-        ->when(request('end_date'), function ($query) {
-            $end_date = Carbon::parse(request('end_date'))->endOfDay();
-            $query->where('users.created_at', '<=', $end_date);
-        })
+            ->join('user_profiles', 'users.id', '=', 'user_profiles.user_id')
+            ->join('user_grades', 'user_profiles.grade_id', '=', 'user_grades.id')
+            ->select('user_profiles.*', 'users.name', 'users.account', 'user_grades.name as grade_name')
+            ->when(request('keyword') != '', function ($query) {
+                if(request('category') == 'mid'){
+                    $query->where('users.id', request('keyword'));
+                } else if (request('category') == 'account') {
+                    $query->where('users.account', request('keyword'));
+                } else if (request('category') == 'name') {
+                    $query->where('users.name', request('keyword'));
+                } else {
+                    $query->where('user_profiles.phone', request('keyword'));
+                }
+            })
+            ->when(request('start_date'), function ($query) {
+                $start_date = Carbon::parse(request('start_date'))->startOfDay();
+                $query->where('users.created_at', '>=', $start_date);
+            })
+            ->when(request('end_date'), function ($query) {
+                $end_date = Carbon::parse(request('end_date'))->endOfDay();
+                $query->where('users.created_at', '<=', $end_date);
+            })
 
-        ->orderBy('users.created_at', 'desc')
-        ->paginate(10);
+            ->orderBy('users.created_at', 'desc')
+            ->paginate(10);
 
 
         return view('admin.user.list', compact('list'));
@@ -83,6 +84,8 @@ class UserController extends Controller
                 ]);
 
                 $user_profile->update([
+                    'is_valid' => $request->is_valid,
+                    'is_frozen' => $request->is_frozen,
                     'email' => $request->email,
                     'phone' => $request->phone,
                     'pcc' => $request->pcc,
@@ -103,13 +106,18 @@ class UserController extends Controller
             } catch (\Exception $e) {
                 DB::rollBack();
 
-                \Log::error('Failed to update user by admin', ['error' => $e->getMessage()]);
+                Log::error('Failed to update user by admin', ['error' => $e->getMessage()]);
 
                 return response()->json([
                     'status' => 'error',
                     'message' => '예기치 못한 오류가 발생했습니다.',
                 ]);
             }
+        } else {
+            return response()->json([
+                'status' => 'error',
+                'message' => '예기치 못한 오류가 발생했습니다.',
+            ]);
         }
     }
 
@@ -125,11 +133,11 @@ class UserController extends Controller
             switch ($request->mode) {
                 case 'usdt' :
                     $user->profile()->update(['meta_uid' => null]);
-                break;
+                    break;
 
                 case 'otp' :
                     $user->otp()->update(['secret_key' => null, 'last_verified_at' => null]);
-                break;
+                    break;
             }
 
             DB::commit();
@@ -143,7 +151,7 @@ class UserController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
 
-            \Log::error('Failed to reset usdt address by admin', ['error' => $e->getMessage()]);
+            Log::error('Failed to reset usdt address by admin', ['error' => $e->getMessage()]);
 
             return response()->json([
                 'status' => 'error',

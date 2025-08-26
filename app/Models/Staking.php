@@ -20,8 +20,7 @@ class Staking extends Model
         'status',
         'amount',
         'period',
-        'started_at',
-        'ended_at',
+        'remaining_days',
     ];
 
     protected $casts = [
@@ -64,12 +63,13 @@ class Staking extends Model
 
     public function getStatusTextAttribute()
     {
-        if ($this->status === 'pending') {
-            return '진행중';
-        } else if ($this->status === 'completed') {
-            return '만료';
+        switch ($this->status) {
+            case 'pending' :
+                return __('staking.pending');
+            case 'completed' :
+                return __('staking.expired');
         }
-        return '오류';
+        return '';
     }
 
     public function getDailyProfit()
@@ -79,12 +79,22 @@ class Staking extends Model
 
     public static function distributeDaily()
     {
-        $today = now()->toDateString();
-        $stakings = self::whereDate('started_at', '<=', $today)
-            ->whereDate('ended_at', '>=', $today)
+        $stakings = self::where('remaining_days', '>', 0)
+            ->where('status', 'pending')
             ->get();
 
         foreach ($stakings as $staking) {
+
+            if (!$staking->policy->isStakingAvailableToday()) {
+                Log::channel('staking')->info('The day is not designated for profit payout.', [
+                    'user_id' => $staking->user_id,
+                    'staking_id' => $staking->id,
+                    'timestamp' => now(),
+                ]);
+
+                continue;
+            }
+
             DB::beginTransaction();
 
             try {
@@ -142,6 +152,7 @@ class Staking extends Model
                     ]);
 
                 }
+
                 $income = $staking->income;
 
                 $income_transfer = IncomeTransfer::create([
@@ -163,6 +174,8 @@ class Staking extends Model
                     'transfer_id' => $income_transfer->id,
                     'profit' => $profit,
                 ]);
+
+                $staking->decrement('remaining_days', 1);
 
                 Log::channel('staking')->info('Staking profit distributed', [
                     'user_id' => $staking->user_id,
@@ -193,7 +206,7 @@ class Staking extends Model
     {
         $today = now()->toDateString();
 
-        $stakings = self::whereDate('ended_at', '<', $today)
+        $stakings = self::where('remaining_days', '<=', 0)
             ->where('status', 'pending')
             ->get();
 

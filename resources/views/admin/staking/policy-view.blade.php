@@ -1,31 +1,40 @@
 @extends('admin.layouts.master')
 
 @section('content')
-<div class="body-wrapper">
-    <div class="container-fluid">
-        <div class="card">
-            <div class="card-body">
-                <div class="mb-3 d-flex justify-content-between">
-                    <h5 class="card-title">스테이킹 정책</h5>
-                </div>
-                <form method="POST" action="{{ route('admin.staking.policy.update') }}" id="ajaxForm">
-                    @csrf    
-                    <input type="hidden" name="id" value="{{ $view->id }}">
-                    <hr>
-                    <table class="table table-bordered mt-5 mb-5">
-                        <tbody>
+    <div class="body-wrapper">
+        <div class="container-fluid">
+            <div class="card">
+                <div class="card-body">
+                    <div class="mb-3 d-flex justify-content-between">
+                        <h5 class="card-title">스테이킹 정책</h5>
+                    </div>
+                    <form method="POST" action="{{ route('admin.staking.policy.update') }}" id="ajaxForm">
+                        @csrf
+                        <input type="hidden" name="id" value="{{ $view->id }}">
+                        <hr>
+                        <table class="table table-bordered mt-5 mb-5">
+                            <tbody>
+                            <tr>
+                                <th class="text-center align-middle">사용 여부</th>
+                                <td class="align-middle" colspan="3">
+                                    <input type="radio" name="is_active" value="y" id="is_active_y" class="form-check-input" @if($view->is_active == 'y') checked @endif>
+                                    <label class="form-check-label me-3" for="is_active_y">사용</label>
+                                    <input type="radio" name="is_active" value="n" id="is_active_n" class="form-check-input" @if($view->is_active == 'n') checked @endif>
+                                    <label class="form-check-label" for="is_active_n">미사용</label>
+                                </td>
+                            </tr>
                             <tr>
                                 <th class="text-center align-middle">이름</th>
                                 <td class="align-middle" colspan="3">
                                     @foreach($locale as $key => $val)
-                                    <div class="d-flex mb-3">
-                                        <div class="me-2" style="width: 30px;">
-                                            <label class="form-label mb-0">{{ $val['code'] }} :</label>
+                                        <div class="d-flex mb-3">
+                                            <div class="me-2" style="width: 30px;">
+                                                <label class="form-label mb-0">{{ $val['code'] }} :</label>
+                                            </div>
+                                            <div class="col-10">
+                                                <input type="text" name="translation[{{ $val['code'] }}][name]" value="{{ optional($view->translationForLocale($val['code']))->name }}" class="form-control form-control-sm">
+                                            </div>
                                         </div>
-                                        <div class="col-10">
-                                            <input type="text" name="translation[{{ $val['code'] }}][name]" value="{{ optional($view->translationForLocale($val['code']))->name }}" class="form-control form-control-sm">
-                                        </div>
-                                    </div>
                                     @endforeach
                                 </td>
                             </tr>
@@ -35,7 +44,7 @@
                                     <select name="coin_id" class="form-control w-50">
                                         <option value="">코인 선택</option>
                                         @foreach ($coins as $coin)
-                                        <option value="{{ $coin->id }}" @selected($view->coin_id == $coin->id)>{{ $coin->name }}</option>
+                                            <option value="{{ $coin->id }}" @selected($view->coin_id == $coin->id)>{{ $coin->name }}</option>
                                         @endforeach
                                     </select>
                                 </td>
@@ -46,16 +55,6 @@
                                     <input type="radio" name="staking_type" value="daily" id="daily" class="form-check-input" @if($view->staking_type == 'daily') checked @endif>
                                     <label class="form-check-label" for="daily">원리금 지급형</label>
                                 </td>
-                            <tr>
-                                <th class="text-center align-middle">참여수량</th>
-                                <td class="align-middle" colspan="3">
-                                    <div class="d-flex mb-3">
-                                        <input type="text" name="min_quantity" value="{{ $view->min_quantity }}" class="form-control w-25">
-                                        <div class="px-2 d-flex align-items-center">~</div>
-                                        <input type="text" name="max_quantity" value="{{ $view->max_quantity }}" class="form-control w-25">
-                                    </div>
-                                </td>
-                            </tr>
                             <tr>
                                 <th class="text-center align-middle">수익률</th>
                                 <td class="align-middle d-flex">
@@ -69,36 +68,58 @@
                                 </td>
                             </tr>
                             <tr>
+                                <th class="text-center align-middle">참여수량</th>
+                                <td class="align-middle" colspan="3">
+                                    <div class="d-flex mb-3">
+                                        <input type="text" name="min_quantity" value="{{ $view->min_quantity }}" class="form-control w-25">
+                                        <div class="px-2 d-flex align-items-center">~</div>
+                                        <input type="text" name="max_quantity" value="{{ $view->max_quantity }}" class="form-control w-25">
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th class="text-center align-middle">스테이킹 수익 요일</th>
+                                <td colspan="3" class="align-middle">
+                                    @foreach($all_days as $key => $label)
+                                        <label class="me-2">
+                                            <input type="checkbox" name="staking_days[]" value="{{ $label }}" class="form-check-input"
+                                                {{ in_array($label, $selected_days) ? 'checked' : '' }}>
+                                            {{ $label }}
+                                        </label>
+                                    @endforeach
+                                </td>
+                            </tr>
+                            <tr>
                                 <th class="text-center align-middle">메모</th>
                                 <td class="align-middle" colspan=3>
                                     @foreach($locale as $key => $val)
-                                    <div class="d-flex mb-3">
-                                        <div class="me-2" style="width: 30px;">
-                                            <label class="form-label mb-0">{{ $val['code'] }} :</label>
+                                        <div class="d-flex mb-3">
+                                            <div class="me-2" style="width: 30px;">
+                                                <label class="form-label mb-0">{{ $val['code'] }} :</label>
+                                            </div>
+                                            <div class="col-10">
+                                                <textarea name="translation[{{ $val['code'] }}][memo]" class="form-control" rows="5" >{{ optional($view->translationForLocale($val['code']))->memo }}</textarea>
+                                            </div>
                                         </div>
-                                        <div class="col-10">
-                                            <textarea name="translation[{{ $val['code'] }}][memo]" class="form-control" rows="5" >{{ optional($view->translationForLocale($val['code']))->memo }}</textarea>
-                                        </div>
-                                    </div>
                                     @endforeach
-                                    
+
                                 </td>
                             </tr>
-                        </tbody>
-                    </table>
-                    <hr>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{{ route('admin.staking.policy', ['id' => '1']) }}" class="btn btn-secondary">목록</a>
-                        <button type="submit" class="btn btn-danger">수정</button>
-                    </div>
-                </form>
+                            </tbody>
+                        </table>
+                        <hr>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{{ route('admin.staking.policy', ['id' => '1']) }}" class="btn btn-secondary">목록</a>
+                            <button type="submit" class="btn btn-danger">수정</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 @endsection
 
 @push('script')
-<script src="{{ asset('js/admin/manager/create.js') }}"></script>
+    <script src="{{ asset('js/admin/manager/create.js') }}"></script>
 @endpush
